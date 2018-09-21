@@ -114,6 +114,7 @@ func main() {
 
 	// api routes
 	router := mux.NewRouter()
+	addPingRoute(router)
 	addOAuthRoutes(router, oauth, logger, authService)
 	addLoginRoutes(router, logger, authService, userService)
 	addLogoutRoutes(router, logger, authService)
