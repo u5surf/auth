@@ -13,7 +13,7 @@ func TestSignup__email(t *testing.T) {
 		{"test@moov.io", true},
 	}
 	for i := range cases {
-		err := checkEmail(cases[i].input)
+		err := validateEmail(cases[i].input)
 		if cases[i].valid && err == nil {
 			continue // valid
 		}
@@ -33,7 +33,7 @@ func TestSignup__pass(t *testing.T) {
 		{"superlongpassword", true},
 	}
 	for i := range cases {
-		err := checkPassword(cases[i].input)
+		err := validatePassword(cases[i].input)
 		if cases[i].valid && err == nil {
 			continue // valid
 		}

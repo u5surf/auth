@@ -56,6 +56,16 @@ func signupRoute(auth authable, userService userRepository) func(w http.Response
 			return
 		}
 
+		// Basic data sanity checks
+		if err := validateEmail(signup.Email); err != nil {
+			encodeError(w, err)
+			return
+		}
+		if err := validatePassword(signup.Password); err != nil {
+			encodeError(w, err)
+			return
+		}
+
 		// find user
 		u, err := userService.lookupByEmail(signup.Email)
 		if err != nil && !strings.Contains(err.Error(), "user not found") {
@@ -67,16 +77,6 @@ func signupRoute(auth authable, userService userRepository) func(w http.Response
 			if err := json.Unmarshal(bs, &signup); err != nil {
 				encodeError(w, err)
 				logger.Log("signup", fmt.Sprintf("failed parsing request json: %v", err))
-				return
-			}
-
-			// Basic data sanity checks
-			if err := checkEmail(signup.Email); err != nil {
-				encodeError(w, err)
-				return
-			}
-			if err := checkPassword(signup.Password); err != nil {
-				encodeError(w, err)
 				return
 			}
 
@@ -114,14 +114,14 @@ func signupRoute(auth authable, userService userRepository) func(w http.Response
 	}
 }
 
-func checkEmail(email string) error {
+func validateEmail(email string) error {
 	if email == "" || !strings.Contains(email, "@") {
 		return errors.New("no email provided")
 	}
 	return nil
 }
 
-func checkPassword(pass string) error {
+func validatePassword(pass string) error {
 	if pass == "" {
 		return errors.New("no password provided")
 	}
