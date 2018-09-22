@@ -195,6 +195,11 @@ type auth struct {
 
 // findUserId takes cookie data and returns the userId associated
 func (a *auth) findUserId(data string) (string, error) {
+	data = strings.TrimSpace(data)
+	if data == "" {
+		return "", errors.New("no cookie data provided")
+	}
+
 	// the SHA256 checksum is stored, not the actual data.
 	data, err := hash(data)
 	if err != nil {
