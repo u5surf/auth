@@ -79,14 +79,15 @@ func setupOauthServer(logger log.Logger) (*oauth, error) {
 
 // addOAuthRoutes includes our oauth2 routes on the provided mux.Router
 func addOAuthRoutes(r *mux.Router, o *oauth, logger log.Logger, auth authable) {
-	r.Methods("GET").Path("/authorize").HandlerFunc(o.authorizeHandler)
+	r.Methods("GET").Path("/oauth2/authorize").HandlerFunc(o.authorizeHandler)
+	r.Methods("POST").Path("/oauth2/token/create").HandlerFunc(o.createTokenHandler(auth))
+
+	// Check token routes
 	if o.server.Config.AllowGetAccessRequest {
-		r.Methods("GET").Path("/token").HandlerFunc(o.tokenHandler)
-	} else {
-		// some oauth implementations need POST
-		r.Methods("POST").Path("/token").HandlerFunc(o.tokenHandler)
+		// only open up GET if the server config asks for it
+		r.Methods("GET").Path("/oauth2/token").HandlerFunc(o.tokenHandler)
 	}
-	r.Methods("POST").Path("/token/create").HandlerFunc(o.recreateTokenHandler(auth))
+	r.Methods("POST").Path("/oauth2/token").HandlerFunc(o.tokenHandler)
 }
 
 // authorizeHandler checks the request for appropriate oauth information
@@ -113,7 +114,7 @@ func (o *oauth) authorizeHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 // tokenHandler passes off the request down to our oauth2 library to
-// generate a token (or return an error).e
+// generate a token (or return an error).
 func (o *oauth) tokenHandler(w http.ResponseWriter, r *http.Request) {
 	err := o.server.HandleTokenRequest(w, r)
 	if err != nil {
@@ -127,12 +128,10 @@ func (o *oauth) tokenHandler(w http.ResponseWriter, r *http.Request) {
 	// tokenGenerations.With("method", "oauth2").Add(1)
 }
 
-// recreateTokenHandler will recreate the oauth token for a user. This involves:
-//  - invalidate all existing tokens
-//  - creates new tokens (and returns them only once)
+// createTokenHandler will create an oauth token for the authenticated user.
 //
 // This method extracts the user from the cookies in r.
-func (o *oauth) recreateTokenHandler(auth authable) http.HandlerFunc {
+func (o *oauth) createTokenHandler(auth authable) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		userId, err := auth.findUserId(extractCookie(r).Value)
 		if err != nil {
@@ -165,6 +164,7 @@ func (o *oauth) recreateTokenHandler(auth authable) http.HandlerFunc {
 				UserID: userId,
 			}
 
+			// Write client into oauth clients db.
 			if err := o.clientStore.Set(clients[i].GetID(), clients[i]); err != nil {
 				internalError(w, err, "oauth")
 				return

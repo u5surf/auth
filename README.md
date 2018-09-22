@@ -10,21 +10,23 @@ This repository holds the authentication service for [moov.io](https://github.co
 
 The follow are environment variables which
 
+- `DOMAIN`: Required
+
 - `OAUTH2_DB_PATH`: TODO
 - `SQLITE_DB_PATH`: TODO
-- `DOMAIN`
 
 - `TLS_CERT` and `TLS_KEY` TODO
 
 ### routes
 
-- DELETE /users/login
-- GET    /authorize
-- GET    /token
-- POST   /token
-- POST   /token/create
 - POST   /users/create
+- GET    /users/login
 - POST   /users/login
+- DELETE /users/login
+
+- GET    /oauth2/authorize
+- POST   /oauth2/token  (NOTE: GET is supported with env var: ...)
+- POST   /oauth2/token/create
 
 ### metrics
 
