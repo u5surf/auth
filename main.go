@@ -77,17 +77,26 @@ func main() {
 		errs <- fmt.Errorf("%s", <-c)
 	}()
 
-	go admin.Init()
+	adminServer := admin.NewServer()
+	go func() {
+		logger.Log("admin", fmt.Sprintf("listening on %s", adminServer.BindAddr()))
+		if err := adminServer.Listen(); err != nil {
+			err = fmt.Errorf("problem starting admin http: %v", err)
+			logger.Log("admin", err)
+			errs <- err
+		}
+	}()
+	defer adminServer.Shutdown()
 
 	// migrate database
 	db, err := migrate(logger)
 	if err != nil {
-		logger.Log("sqlite", err)
+		logger.Log("admin", err)
 		os.Exit(1)
 	}
 	defer func() {
 		if err := db.Close(); err != nil {
-			logger.Log("sqlite", err)
+			logger.Log("admin", err)
 		}
 	}()
 
@@ -143,11 +152,11 @@ func main() {
 	}
 	defer shutdownServer()
 
-	adminService := admin.SetupServer()
+	adminService := admin.NewServer()
 	defer adminService.Shutdown()
 
 	go func() {
-		logger.Log("admin", fmt.Sprintf("Starting admin service on %s", adminService.BindAddress()))
+		logger.Log("admin", fmt.Sprintf("Starting admin service on %s", adminService.BindAddr()))
 		if err := adminService.Listen(); err != nil {
 			logger.Log("admin", "shutting down", "error", err)
 		}
