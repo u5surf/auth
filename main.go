@@ -23,7 +23,7 @@ import (
 	stdprometheus "github.com/prometheus/client_golang/prometheus"
 )
 
-const Version = "v0.2.0-dev"
+const Version = "v0.2.0"
 
 var (
 	httpAddr = flag.String("http.addr", ":8080", "HTTP listen address")
