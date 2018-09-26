@@ -13,7 +13,7 @@ docker:
 release: docker
 	go vet ./...
 	go test ./...
-	git tag $(VERSION)
+	git tag -f $(VERSION)
 
 release-push:
 	echo "$DOCKER_PASSWORD" | docker login -u wadearnold --password-stdin 
