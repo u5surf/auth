@@ -6,21 +6,16 @@ package admin
 
 import (
 	"context"
-	"fmt"
 	"net/http"
-	"net/http/pprof"
 	"time"
-
-	"github.com/gorilla/mux"
-	"github.com/prometheus/client_golang/prometheus/promhttp"
 )
 
-func SetupServer() *Server {
+func NewServer() *Server {
 	timeout, _ := time.ParseDuration("45s")
 	return &Server{
 		svc: &http.Server{
 			Addr:         ":9090",
-			Handler:      handler(),
+			Handler:      Handler(),
 			ReadTimeout:  timeout,
 			WriteTimeout: timeout,
 			IdleTimeout:  timeout,
@@ -34,7 +29,7 @@ type Server struct {
 	svc *http.Server
 }
 
-func (s *Server) BindAddress() string {
+func (s *Server) BindAddr() string {
 	return s.svc.Addr
 }
 
@@ -52,21 +47,4 @@ func (s *Server) Shutdown() {
 		return
 	}
 	s.svc.Shutdown(context.TODO())
-}
-
-func handler() http.Handler {
-	r := mux.NewRouter()
-
-	// prometheus metrics
-	r.Methods("GET").Path("/metrics").Handler(promhttp.Handler())
-
-	// add all pprof handlers we've configured
-	r.HandleFunc("/debug/pprof/", pprof.Index)
-	for k, add := range pprofHandlers {
-		if pprofProfileEnabled(k, add) {
-			r.Handle(fmt.Sprintf("/debug/pprof/%s", k), pprof.Handler(k))
-		}
-	}
-
-	return r
 }
