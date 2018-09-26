@@ -11,6 +11,8 @@ import (
 	"net/http"
 	"os"
 	"time"
+
+	"github.com/gorilla/mux"
 )
 
 const (
@@ -96,4 +98,11 @@ func createCookie(userId string, auth authable) (*http.Cookie, error) {
 		return nil, err
 	}
 	return cookie, nil
+}
+
+func addPingRoute(r *mux.Router) {
+	r.Methods("GET").Path("/ping").HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		w.Header().Set("Content-Type", "text/plain")
+		w.Write([]byte("PONG"))
+	})
 }
