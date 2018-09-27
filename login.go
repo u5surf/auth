@@ -40,6 +40,7 @@ func checkLogin(logger log.Logger, auth authable, userService userRepository) ht
 			w.WriteHeader(http.StatusForbidden)
 			return
 		}
+		w.Header().Set("X-User-Id", userId)
 		w.WriteHeader(http.StatusOK)
 	}
 }

@@ -113,19 +113,57 @@ func (o *oauth) authorizeHandler(w http.ResponseWriter, r *http.Request) {
 	w.WriteHeader(http.StatusOK)
 }
 
+type rememberingWriter struct {
+	http.ResponseWriter
+	statusCode int
+}
+
+func (r *rememberingWriter) WriteHeader(code int) {
+	if r.statusCode == 0 {
+		r.statusCode = code
+	}
+	r.ResponseWriter.WriteHeader(code)
+}
+
 // tokenHandler passes off the request down to our oauth2 library to
 // generate a token (or return an error).
 func (o *oauth) tokenHandler(w http.ResponseWriter, r *http.Request) {
-	err := o.server.HandleTokenRequest(w, r)
+	w = &rememberingWriter{ResponseWriter: w}
+
+	// This block is copied from o.server.HandleTokenRequest
+	// We needed to inspect what's going on a bit.
+	gt, tgr, verr := o.server.ValidationTokenRequest(r)
+	if verr != nil {
+		encodeError(w, verr)
+		return
+	}
+	ti, verr := o.server.GetAccessToken(gt, tgr)
+	if verr != nil {
+		encodeError(w, verr)
+		return
+	}
+	data := o.server.GetTokenData(ti)
+	bs, err := json.Marshal(data)
 	if err != nil {
 		encodeError(w, err)
 		return
 	}
-	// TODO(adam): We need to track this metric inside our TokenStorage.
+	// (end of copy)
+
 	// HandleTokenRequest currently returns nil even if the token request
-	// failed. There's no real way to inspect the http.ResponseWriter in
-	// an attempt to correctly calculate this.
-	// tokenGenerations.Add(1)
+	// failed. That menas we can't clearly know if token generation passed or failed.
+	//
+	// So we need to find out if an error is written, which we can
+	// infer by w.WriteHeader call (a 4xx or 5xx status code).
+	if ww, ok := w.(*rememberingWriter); ok && ww.statusCode > 400 { // wrote error
+		tokenGenerations.Add(1)
+		w.Header().Set("X-User-Id", ti.GetUserID()) // only on non-errors
+	}
+
+	// Write our response
+	w.Header().Set("Content-Type", "application/json; charset=utf-8")
+	w.WriteHeader(http.StatusOK)
+	w.Write(bs)
 }
 
 // createTokenHandler will create an oauth token for the authenticated user.
