@@ -128,10 +128,6 @@ func main() {
 	addSignupRoutes(router, logger, authService, userService)
 	// TODO(adam): profile CRU[D] routes
 
-	readTimeout, _ := time.ParseDuration("30s")
-	writTimeout, _ := time.ParseDuration("30s")
-	idleTimeout, _ := time.ParseDuration("60s")
-
 	serve := &http.Server{
 		Addr:    *httpAddr,
 		Handler: router,
@@ -140,9 +136,9 @@ func main() {
 			PreferServerCipherSuites: true,
 			MinVersion:               tls.VersionTLS12,
 		},
-		ReadTimeout:  readTimeout,
-		WriteTimeout: writTimeout,
-		IdleTimeout:  idleTimeout,
+		ReadTimeout:  30 * time.Second,
+		WriteTimeout: 30 * time.Second,
+		IdleTimeout:  60 * time.Second,
 	}
 	shutdownServer := func() {
 		if err := serve.Shutdown(context.TODO()); err != nil {
@@ -150,16 +146,6 @@ func main() {
 		}
 	}
 	defer shutdownServer()
-
-	adminService := admin.NewServer()
-	defer adminService.Shutdown()
-
-	go func() {
-		logger.Log("admin", fmt.Sprintf("Starting admin service on %s", adminService.BindAddr()))
-		if err := adminService.Listen(); err != nil {
-			logger.Log("admin", "shutting down", "error", err)
-		}
-	}()
 
 	go func() {
 		if serveViaTLS {

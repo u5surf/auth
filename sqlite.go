@@ -48,14 +48,11 @@ func (p *promMetricCollector) run(db *sql.DB) {
 	}
 	p.tick = time.NewTicker(1 * time.Second)
 
-	for {
-		select {
-		case <-p.tick.C:
-			stats := db.Stats()
-			connections.With("state", "idle").Set(float64(stats.Idle))
-			connections.With("state", "inuse").Set(float64(stats.InUse))
-			connections.With("state", "open").Set(float64(stats.OpenConnections))
-		}
+	for _ = range p.tick.C {
+		stats := db.Stats()
+		connections.With("state", "idle").Set(float64(stats.Idle))
+		connections.With("state", "inuse").Set(float64(stats.InUse))
+		connections.With("state", "open").Set(float64(stats.OpenConnections))
 	}
 }
 
