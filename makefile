@@ -1,4 +1,4 @@
-VERSION := $(shell grep -Eo '(v[0-9]+[\.][0-9]+[\.][0-9]+(-dev)?)' main.go)
+VERSION := $(shell grep -Eo '(v[0-9]+[\.][0-9]+[\.][0-9]+(-[a-zA-Z0-9]*)?)' version.go)
 
 .PHONY: build docker release
 
@@ -16,6 +16,6 @@ release: docker
 	git tag -f $(VERSION)
 
 release-push:
-	echo "$DOCKER_PASSWORD" | docker login -u wadearnold --password-stdin 
+	echo "$DOCKER_PASSWORD" | docker login -u wadearnold --password-stdin
 	git push origin $(VERSION)
 	docker push moov/auth:$(VERSION)
