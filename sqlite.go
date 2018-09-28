@@ -48,7 +48,7 @@ func (p *promMetricCollector) run(db *sql.DB) {
 	}
 	p.tick = time.NewTicker(1 * time.Second)
 
-	for _ = range p.tick.C {
+	for range p.tick.C {
 		stats := db.Stats()
 		connections.With("state", "idle").Set(float64(stats.Idle))
 		connections.With("state", "inuse").Set(float64(stats.InUse))
