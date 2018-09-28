@@ -2,22 +2,31 @@
 
 This repository holds the authentication service for [moov.io](https://github.com/moov-io). If you find a problem (security or otherwise), please contact us at [`security@moov.io`](mailto:security@moov.io).
 
-### runbook
+The auth project supports various auth methods:
+- REST authentication and user signup
+- OAuth2 exchange (linked to an authenticated user)
 
-// TODO(adam)
+### Getting Started
 
-### configuration
+You can download [our docker image `moov/auth`](https://hub.docker.com/r/moov/auth/) from Docker Hub or use this repository. No configuration is required to serve on `localhost:8080`.
 
-The follow are environment variables which
+Metrics are served at `localhost:9090/metrics` in prometheus format.
 
-- `DOMAIN`: Required
+### Configuration
 
-- `OAUTH2_DB_PATH`: TODO
-- `SQLITE_DB_PATH`: TODO
+The follow are environment variables can be configured:
 
-- `TLS_CERT` and `TLS_KEY` TODO
+**Required**
+- `DOMAIN`: Domain to set on cookies.
+**Optional**
+- `OAUTH2_CLIENTS_DB_PATH`: Filepath to our oauth2 clients database.
+- `OAUTH2_TOKENS_DB_PATH`: Filepath to our oauth2 tokens database.
+- `SQLITE_DB_PATH`: Filepath to our sqlite database
+- `TLS_CERT` and `TLS_KEY`: Filepaths to TLS certificate and keyfile (in PEM encoding)
 
-### routes
+### Endpoints
+
+- GET /ping
 
 - POST   /users/create
 - GET    /users/login
@@ -35,6 +44,7 @@ The follow are environment variables which
     <dt>auth_failures</dt><dd>Count of failed authorizations</dd>
     <dt>auth_inactivations</dt><dd>Count of inactivated auths (i.e. user logout)</dd>
     <dt>http_errors</dt><dd>Count of how many 5xx errors we send out</dd>
-    <dt>auth_token_generations</dt><dd>Count of auth tokens created</dd>
+    <dt>oauth2_client_generations</dt><dd>Count of auth tokens created</dd>
+    <dt>oauth2_token_generations</dt><dd>Count of auth tokens created</dd>
     <dt>sqlite_connections</dt><dd>How many sqlite connections and what status they're in.</dd>
 </dl>
