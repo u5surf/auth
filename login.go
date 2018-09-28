@@ -64,6 +64,16 @@ func loginRoute(logger log.Logger, auth authable, userService userRepository) ht
 			return
 		}
 
+		// Basic data sanity checks
+		if err := validateEmail(login.Email); err != nil {
+			encodeError(w, err)
+			return
+		}
+		if err := validatePassword(login.Password); err != nil {
+			encodeError(w, err)
+			return
+		}
+
 		// find user by email
 		u, err := userService.lookupByEmail(login.Email)
 		if err != nil {
