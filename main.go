@@ -52,10 +52,14 @@ var (
 		Help: "Count of how many 5xx errors we send out",
 	}, nil)
 
-	tokenGenerations = prometheus.NewCounterFrom(stdprometheus.CounterOpts{
-		Name: "auth_token_generations",
+	clientGenerations = prometheus.NewCounterFrom(stdprometheus.CounterOpts{
+		Name: "oauth2_client_generations",
 		Help: "Count of auth tokens created",
-	}, []string{"method"})
+	}, nil)
+	tokenGenerations = prometheus.NewCounterFrom(stdprometheus.CounterOpts{
+		Name: "oauth2_token_generations",
+		Help: "Count of auth tokens created",
+	}, nil)
 )
 
 func main() {

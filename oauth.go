@@ -125,7 +125,7 @@ func (o *oauth) tokenHandler(w http.ResponseWriter, r *http.Request) {
 	// HandleTokenRequest currently returns nil even if the token request
 	// failed. There's no real way to inspect the http.ResponseWriter in
 	// an attempt to correctly calculate this.
-	// tokenGenerations.With("method", "oauth2").Add(1)
+	// tokenGenerations.Add(1)
 }
 
 // createTokenHandler will create an oauth token for the authenticated user.
@@ -172,7 +172,7 @@ func (o *oauth) createTokenHandler(auth authable) http.HandlerFunc {
 		}
 
 		// metrics
-		tokenGenerations.With("method", "oauth2_via_web").Add(1)
+		clientGenerations.Add(1)
 
 		// render back new client info
 		type response struct {
