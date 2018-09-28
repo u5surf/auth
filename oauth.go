@@ -113,11 +113,16 @@ func (o *oauth) authorizeHandler(w http.ResponseWriter, r *http.Request) {
 	w.WriteHeader(http.StatusOK)
 }
 
+// rememberingWriter is a http.ResponseWriter that knows when its headers
+// have been written. This is non-idempotent according to http.ResponseWriter,
+// but there's no good way to inspect if that's happened yet.
 type rememberingWriter struct {
 	http.ResponseWriter
 	statusCode int
 }
 
+// WriteHeader intecepts the embedded WriteHeader call to record what
+// status code was written.
 func (r *rememberingWriter) WriteHeader(code int) {
 	if r.statusCode == 0 {
 		r.statusCode = code
