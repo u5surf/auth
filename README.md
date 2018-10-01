@@ -33,6 +33,7 @@ The follow are environment variables can be configured:
 
 **Required**
 - `DOMAIN`: Domain to set on cookies.
+
 **Optional**
 - `OAUTH2_CLIENTS_DB_PATH`: File path to our oauth2 clients database.
 - `OAUTH2_TOKENS_DB_PATH`: File path to our oauth2 tokens database.
@@ -41,28 +42,28 @@ The follow are environment variables can be configured:
 
 ### Endpoints
 
-- GET /ping
-
-- POST   /users/create
-- GET    /users/login
-- POST   /users/login
-- DELETE /users/login
-
-- GET    /oauth2/authorize
-- POST   /oauth2/token  (NOTE: GET is supported with env var: ...)
-- POST   /oauth2/token/create
+| Method | Path | Description |
+|---|---|---|
+| GET | /ping | Always returns "PONG". Useful for readness check |
+| POST | /users/create | Create a new user. (Signup) |
+| GET | /users/login | Verify if a Cookie is valid for a user. |
+| POST | /users/login | Login with an email and password.  |
+| DELETE | /users/login | Invalidat a user's active cookies. |
+| GET | /oauth2/authorize | Verify a Bearer OAuth2 token. |
+| [GET&]POST | /oauth2/token | Create a new OAuth2 token. |
+| POST | /oauth2/token/create | Create a new OAuth2 client credential set. |
 
 ### metrics
 
-<dl>
-    <dt>auth_successes</dt><dd>Count of successful authorizations</dd>
-    <dt>auth_failures</dt><dd>Count of failed authorizations</dd>
-    <dt>auth_inactivations</dt><dd>Count of inactivated auths (i.e. user logout)</dd>
-    <dt>http_errors</dt><dd>Count of how many 5xx errors we send out</dd>
-    <dt>oauth2_client_generations</dt><dd>Count of auth tokens created</dd>
-    <dt>oauth2_token_generations</dt><dd>Count of auth tokens created</dd>
-    <dt>sqlite_connections</dt><dd>How many sqlite connections and what status they're in.</dd>
-</dl>
+| Name | Help Text |
+|---|---|
+| auth_successes | Count of successful authorizations |
+| auth_failures | Count of failed authorizations |
+| auth_inactivations | Count of inactivated auths (i.e. user logout) |
+| http_errors | Count of how many 5xx errors we send out |
+| oauth2_client_generations | Count of auth tokens created |
+| oauth2_token_generations | Count of auth tokens created |
+| sqlite_connections | How many sqlite connections and what status they're in. |
 
 ## Getting Help
 
