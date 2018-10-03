@@ -137,6 +137,9 @@ func validatePassword(pass string) error {
 }
 
 func validatePhone(phone string) error {
+	phone = strings.Replace(phone, "-", "", -1)
+	phone = strings.Replace(phone, ".", "", -1)
+	phone = strings.Replace(phone, " ", "", -1)
 	if m, _ := regexp.MatchString("^\\+?[1-9]\\d{1,14}$", phone); !m {
 		return errors.New("phone number is invalid")
 	}

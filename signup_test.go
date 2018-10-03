@@ -70,6 +70,12 @@ func TestSignup__phone(t *testing.T) {
 		{"1009099999999999", false},
 		{"+14155552671000", true},
 		{"+1415555267100001", false},
+		{"+1-6174443000", true},
+		{"+33 1 5669 6201", true},
+		{"49-8994006308", true},
+		{"+972-732858700", true},
+		{"+81-90-1234-5678", true},
+		{"666.666.6666", true},
 	}
 	for i := range cases {
 		err := validatePhone(cases[i].input)
