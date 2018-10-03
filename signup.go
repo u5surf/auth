@@ -9,6 +9,7 @@ import (
 	"errors"
 	"fmt"
 	"net/http"
+	"regexp"
 	"strings"
 	"time"
 	"unicode/utf8"
@@ -62,6 +63,10 @@ func signupRoute(auth authable, userService userRepository) func(w http.Response
 			return
 		}
 		if err := validatePassword(signup.Password); err != nil {
+			encodeError(w, err)
+			return
+		}
+		if err := validatePhone(signup.Phone); err != nil {
 			encodeError(w, err)
 			return
 		}
@@ -127,6 +132,13 @@ func validatePassword(pass string) error {
 	}
 	if n := utf8.RuneCountInString(pass); n < minPasswordLength {
 		return fmt.Errorf("password required to be at least %d characters", n)
+	}
+	return nil
+}
+
+func validatePhone(phone string) error {
+	if m, _ := regexp.MatchString("^\\+?[1-9]\\d{1,14}$", phone); !m {
+		return errors.New("phone number is invalid")
 	}
 	return nil
 }
